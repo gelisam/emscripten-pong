@@ -82,8 +82,8 @@ double t_at_start, t_at_last_frame, t, dt;
 
 
 struct GameState {
-  double left_paddle_y = 0.5;
-  double right_paddle_y = 0.5;
+  double left_paddle_y = 0.0;
+  double right_paddle_y = 0.0;
   
   V2 ball_pos = screen_center;
   V2 ball_speed = V2(0.01, 0.01);
@@ -131,9 +131,20 @@ void draw(const SDL_Rect& r, Color color=current_fg) {
   assert(SDL_FillRect(screen, &r, color) == 0);
 }
 
+
+double ball_radius = 0.02;
+Color ball_color = rgb(0xccffcc);
+
+V2 paddle_size = V2(0.03, 0.2);
+Color paddle_color = rgb(0x88aa88);
+
 void draw_frame() {
   clear();
-  draw(square(game_state.ball_pos));
+  
+  draw(rect(screen_left  + V2(0.03, game_state.left_paddle_y ), paddle_size), paddle_color);
+  draw(rect(screen_right - V2(0.03, game_state.right_paddle_y), paddle_size), paddle_color);
+  
+  draw(square(game_state.ball_pos, ball_radius), ball_color);
 }
 
 
