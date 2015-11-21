@@ -1,14 +1,14 @@
-all: a.out.js
+all: index.html
 .PHONY: all clean clobber
 
 
-a.out: main.c
+a.out: main.cpp
 	gcc -W -Wall $<
 
-a.out.js: main.c
-	emcc -W -Wall $<
+index.html: main.cpp
+	em++ -o index.html -W -Wall $<
 
 
 clean:
 clobber: clean
-	rm -rf a.out a.out.js
+	rm -rf a.out a.out.js index.html
