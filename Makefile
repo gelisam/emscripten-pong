@@ -6,7 +6,7 @@ a.out: main.cpp
 	gcc -W -Wall $<
 
 index.html: main.cpp
-	em++ -o index.html -W -Wall $<
+	em++ -std=c++11 -o index.html -W -Wall $<
 
 
 clean:
