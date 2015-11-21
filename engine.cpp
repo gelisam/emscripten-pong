@@ -71,8 +71,8 @@ inline Color rgb(unsigned int rrggbb) {
   return rgb(r, g, b);
 }
 
-Color current_fg = rgb(0xffffff);
-Color current_bg = rgb(0x000000);
+Color current_fg;
+Color current_bg;
 
 
 double t_at_start, t_at_last_frame, t, dt;
@@ -104,6 +104,7 @@ void draw(const SDL_Rect& r, Color color=current_fg) {
 }
 
 
+void init();
 void handle_event(const SDL_Event& event);
 void advance_simulation();
 void draw_frame();
@@ -131,6 +132,11 @@ int main() {
   assert(screen);
   
   t_at_start = emscripten_get_now();
+  
+  current_fg = rgb(0xffffff);
+  current_bg = rgb(0x000000);
+  init();
+  
   emscripten_set_main_loop(main_loop, 0, 0);
   
   return 0;
