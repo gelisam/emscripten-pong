@@ -17,7 +17,6 @@ void init() {
 
 struct GameState {
   double left_paddle_y = 0.0;
-  double right_paddle_y = 0.0;
   
   bool key_up_is_pressed = false;
   bool key_down_is_pressed = false;
@@ -32,10 +31,6 @@ inline Rect ball_rect(const GameState& g=game_state) {
 
 inline Rect left_paddle_rect(const GameState& g=game_state) {
   return rect_at(paddle_size, screen_left + V2(0.03, g.left_paddle_y));
-}
-
-inline Rect right_paddle_rect(const GameState& g=game_state) {
-  return rect_at(paddle_size, screen_right - V2(0.03, g.right_paddle_y));
 }
 
 
@@ -88,9 +83,9 @@ GameState next(const GameState& g) {
   gg.ball_pos = g.ball_pos + g.ball_speed;
   
   if (collides(ball_rect(gg), left_paddle_rect(gg))) return bounce_right(g);
-  if (collides(ball_rect(gg), right_paddle_rect(gg))) return bounce_left(g);
-  if (gg.ball_pos.y < screen_bottom.y) return bounce_up(g);
-  if (gg.ball_pos.y > screen_top.y) return bounce_down(g);
+  if (collides(ball_rect(gg), right_side_of_the_screen)) return bounce_left(g);
+  if (collides(ball_rect(gg), bottom_of_the_screen)) return bounce_up(g);
+  if (collides(ball_rect(gg), top_of_the_screen)) return bounce_down(g);
   
   double paddle_dy = (g.key_up_is_pressed ? paddle_speed : 0.0)
                    + (g.key_down_is_pressed ? -paddle_speed : 0.0);
@@ -108,6 +103,5 @@ void draw_frame() {
   clear();
   
   draw(left_paddle_rect(), paddle_color);
-  draw(right_paddle_rect(), paddle_color);
   draw(ball_rect(), ball_color);
 }
