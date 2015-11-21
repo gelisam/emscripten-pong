@@ -7,6 +7,7 @@ V2 paddle_size = V2(0.03, 0.2);
 
 Color ball_color;
 Color paddle_color;
+double paddle_speed = 0.05;
 
 void init() {
   ball_color = rgb(0xccffcc);
@@ -17,6 +18,9 @@ void init() {
 struct GameState {
   double left_paddle_y = 0.0;
   double right_paddle_y = 0.0;
+  
+  bool key_up_is_pressed = false;
+  bool key_down_is_pressed = false;
   
   V2 ball_pos = screen_center;
   V2 ball_speed = V2(0.01, 0.01);
@@ -36,9 +40,19 @@ inline Rect right_paddle_rect(const GameState& g=game_state) {
 
 
 void handle_event(const SDL_Event& event) {
-  if(event.key.keysym.sym == SDLK_c) {
-    printf("switch_color\n");
-    current_fg = rgb(0x0000ff);
+  switch (event.type) {
+    case SDL_KEYDOWN:
+      switch (event.key.keysym.sym) {
+        case SDLK_UP: game_state.key_up_is_pressed = true; break;
+        case SDLK_DOWN: game_state.key_down_is_pressed = true; break;
+      }
+      break;
+    case SDL_KEYUP:
+      switch (event.key.keysym.sym) {
+        case SDLK_UP: game_state.key_up_is_pressed = false; break;
+        case SDLK_DOWN: game_state.key_down_is_pressed = false; break;
+      }
+      break;
   }
 }
 
@@ -77,6 +91,11 @@ GameState next(const GameState& g) {
   if (collides(ball_rect(gg), right_paddle_rect(gg))) return bounce_left(g);
   if (gg.ball_pos.y < screen_bottom.y) return bounce_up(g);
   if (gg.ball_pos.y > screen_top.y) return bounce_down(g);
+  
+  double paddle_dy = (g.key_up_is_pressed ? paddle_speed : 0.0)
+                   + (g.key_down_is_pressed ? -paddle_speed : 0.0);
+  
+  gg.left_paddle_y += paddle_dy;
   
   return gg;
 }
