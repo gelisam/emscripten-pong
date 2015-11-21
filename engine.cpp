@@ -8,6 +8,7 @@ const int HEIGHT = 600;
 
 
 double infinity = 1.0 / 0.0;
+double screen_ratio = 1.0 * WIDTH / HEIGHT;
 
 
 struct V2 {
@@ -16,11 +17,11 @@ struct V2 {
   : x(x), y(y) {}
 };
 
-V2 screen_top    = V2( 0.0, 1.0);
-V2 screen_left   = V2(-1.0, 0.0);
-V2 screen_center = V2( 0.0, 0.0);
-V2 screen_right  = V2( 1.0, 0.0);
-V2 screen_bottom = V2( 0.0,-1.0);
+V2 screen_top    = V2(          0.0, 1.0);
+V2 screen_left   = V2(-screen_ratio, 0.0);
+V2 screen_center = V2(          0.0, 0.0);
+V2 screen_right  = V2( screen_ratio, 0.0);
+V2 screen_bottom = V2(          0.0,-1.0);
 
 V2 pixels_screen_center = V2(WIDTH / 2.0, HEIGHT / 2.0);
 double pixels_per_unit = HEIGHT / 2.0;
@@ -66,8 +67,8 @@ struct Rect {
 
 Rect screen_rect = Rect(1, 1, -1, -1);
 Rect top_of_the_screen        = Rect(infinity, infinity, -infinity, 1);
-Rect right_side_of_the_screen = Rect(infinity, infinity, 1, -infinity);
-Rect left_side_of_the_screen  = Rect(infinity, -1, -infinity, -infinity);
+Rect right_side_of_the_screen = Rect(infinity, infinity, screen_ratio, -infinity);
+Rect left_side_of_the_screen  = Rect(infinity, -screen_ratio, -infinity, -infinity);
 Rect bottom_of_the_screen     = Rect(-1, infinity, -infinity, -infinity);
 
 inline bool collides(const Rect& a, const Rect& b) {
