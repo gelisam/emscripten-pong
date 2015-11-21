@@ -21,6 +21,18 @@ struct GameState {
   V2 ball_speed = V2(0.01, 0.01);
 } game_state;
 
+inline SDL_Rect ball_rect(const GameState& g=game_state) {
+  return square(g.ball_pos, ball_radius);
+}
+
+inline SDL_Rect left_paddle_rect(const GameState& g=game_state) {
+  return rect(screen_left + V2(0.03, g.left_paddle_y), paddle_size);
+}
+
+inline SDL_Rect right_paddle_rect(const GameState& g=game_state) {
+  return rect(screen_right - V2(0.03, g.right_paddle_y), paddle_size);
+}
+
 
 void handle_event(const SDL_Event& event) {
   if(event.key.keysym.sym == SDLK_c) {
@@ -44,8 +56,7 @@ void advance_simulation() {
 void draw_frame() {
   clear();
   
-  draw(rect(screen_left  + V2(0.03, game_state.left_paddle_y ), paddle_size), paddle_color);
-  draw(rect(screen_right - V2(0.03, game_state.right_paddle_y), paddle_size), paddle_color);
-  
-  draw(square(game_state.ball_pos, ball_radius), ball_color);
+  draw(left_paddle_rect(), paddle_color);
+  draw(right_paddle_rect(), paddle_color);
+  draw(ball_rect(), ball_color);
 }
