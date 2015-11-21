@@ -10,6 +10,55 @@ const int WIDTH = 800;
 const int HEIGHT = 600;
 
 
+struct V2 {
+  double x, y;
+  V2(double x, double y)
+  : x(x), y(y) {}
+};
+
+V2 screen_top    = V2( 0.0, 1.0);
+V2 screen_left   = V2(-1.0, 0.0);
+V2 screen_center = V2( 0.0, 0.0);
+V2 screen_right  = V2( 1.0, 0.0);
+V2 screen_bottom = V2( 0.0,-1.0);
+
+V2 pixels_screen_center = V2(WIDTH / 2.0, HEIGHT / 2.0);
+double pixels_per_unit = HEIGHT / 2.0;
+
+inline V2 operator+(const V2& a, const V2& b) {
+  return V2(a.x + b.x, a.y + b.y);
+}
+
+inline V2 operator-(const V2& a, const V2& b) {
+  return V2(a.x - b.x, a.y - b.y);
+}
+
+inline V2 operator*(const V2& a, const V2& b) {
+  return V2(a.x * b.x, a.y * b.y);
+}
+
+inline V2 operator*(double a, const V2& b) {
+  return V2(a * b.x, a * b.y);
+}
+
+inline V2 operator/(const V2& a, double b) {
+  return V2(a.x / b, a.y / b);
+}
+
+inline double to_pixel_magnitude(double a) {
+  return pixels_per_unit * a;
+}
+
+inline V2 to_pixel_magnitude(const V2& a) {
+  return pixels_per_unit * a;
+}
+
+inline V2 to_pixel_coords(const V2& a) {
+  return V2(1, -1) * to_pixel_magnitude(a) + pixels_screen_center;
+}
+
+
+
 typedef Uint32 Color;
 
 // Color red = rgb(255,0,0);
@@ -36,10 +85,8 @@ struct GameState {
   double left_paddle_y = 0.5;
   double right_paddle_y = 0.5;
   
-  double ball_x = 0.5;
-  double ball_y = 0.5;
-  double ball_dx = 0.5;
-  double ball_dy = 0.5;
+  V2 ball_pos = screen_center;
+  V2 ball_speed = V2(0.01, 0.01);
 } game_state;
 
 
@@ -53,24 +100,26 @@ void handle_event(const SDL_Event& event) {
 GameState advance_simulation(const GameState& g) {
   GameState gg = g;
   
-  gg.ball_x = g.ball_x + g.ball_dx;
-  gg.ball_y = g.ball_y + g.ball_dy;
+  gg.ball_pos = g.ball_pos + g.ball_speed;
   
   return gg;
 }
 
 
-inline SDL_Rect rect(double x, double y, double w, double h) {
+inline SDL_Rect rect(const V2& pos, const V2& dim) {
+  V2 pixel_pos = to_pixel_coords(pos);
+  V2 pixel_dim = to_pixel_magnitude(dim);
+  
   SDL_Rect rect;
-  rect.x = x;
-  rect.y = y;
-  rect.w = w;
-  rect.h = h;
+  rect.x = pixel_pos.x;
+  rect.y = pixel_pos.y;
+  rect.w = pixel_dim.x;
+  rect.h = pixel_dim.y;
   return rect;
 }
 
-inline SDL_Rect square(double x, double y, double radius=5) {
-  return rect(x-radius, y-radius, 2*radius, 2*radius);
+inline SDL_Rect square(const V2& pos, double radius=0.01) {
+  return rect(pos - V2(radius, radius), 2*V2(radius, radius));
 }
 
 
@@ -84,7 +133,7 @@ void draw(const SDL_Rect& r, Color color=current_fg) {
 
 void draw_frame() {
   clear();
-  draw(square(game_state.ball_x, game_state.ball_y));
+  draw(square(game_state.ball_pos));
 }
 
 
