@@ -1,3 +1,4 @@
+#include <math.h>
 #include "engine.cpp"
 
 
@@ -21,16 +22,16 @@ struct GameState {
   V2 ball_speed = V2(0.01, 0.01);
 } game_state;
 
-inline SDL_Rect ball_rect(const GameState& g=game_state) {
-  return square(g.ball_pos, ball_radius);
+inline Rect ball_rect(const GameState& g=game_state) {
+  return square_at(ball_radius*2, g.ball_pos);
 }
 
-inline SDL_Rect left_paddle_rect(const GameState& g=game_state) {
-  return rect(screen_left + V2(0.03, g.left_paddle_y), paddle_size);
+inline Rect left_paddle_rect(const GameState& g=game_state) {
+  return rect_at(paddle_size, screen_left + V2(0.03, g.left_paddle_y));
 }
 
-inline SDL_Rect right_paddle_rect(const GameState& g=game_state) {
-  return rect(screen_right - V2(0.03, g.right_paddle_y), paddle_size);
+inline Rect right_paddle_rect(const GameState& g=game_state) {
+  return rect_at(paddle_size, screen_right - V2(0.03, g.right_paddle_y));
 }
 
 
@@ -41,10 +42,41 @@ void handle_event(const SDL_Event& event) {
   }
 }
 
+GameState next(const GameState& g);
+
+GameState bounce_right(const GameState& g) {
+  GameState gg = g;
+  gg.ball_speed.x = fabs(gg.ball_speed.x);
+  return next(gg);
+}
+
+GameState bounce_left(const GameState& g) {
+  GameState gg = g;
+  gg.ball_speed.x = -fabs(gg.ball_speed.x);
+  return next(gg);
+}
+
+GameState bounce_up(const GameState& g) {
+  GameState gg = g;
+  gg.ball_speed.y = fabs(gg.ball_speed.y);
+  return next(gg);
+}
+
+GameState bounce_down(const GameState& g) {
+  GameState gg = g;
+  gg.ball_speed.y = -fabs(gg.ball_speed.y);
+  return next(gg);
+}
+
 GameState next(const GameState& g) {
   GameState gg = g;
   
   gg.ball_pos = g.ball_pos + g.ball_speed;
+  
+  if (collides(ball_rect(gg), left_paddle_rect(gg))) return bounce_right(g);
+  if (collides(ball_rect(gg), right_paddle_rect(gg))) return bounce_left(g);
+  if (gg.ball_pos.y < screen_bottom.y) return bounce_up(g);
+  if (gg.ball_pos.y > screen_top.y) return bounce_down(g);
   
   return gg;
 }

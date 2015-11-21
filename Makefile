@@ -5,7 +5,7 @@ all: index.html
 a.out: main.cpp
 	gcc -W -Wall $<
 
-index.html: main.cpp
+index.html: main.cpp engine.cpp
 	em++ -std=c++11 -o index.html -g -W -Wall $<
 	#em++ -std=c++11 -o index.html -O3 -W -Wall $<
 
