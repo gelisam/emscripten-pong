@@ -43,14 +43,14 @@ void handle_event(const SDL_Event& event) {
   switch (event.type) {
     case SDL_KEYDOWN:
       switch (event.key.keysym.sym) {
-        case SDLK_UP: game_state.key_up_is_pressed = true; break;
-        case SDLK_DOWN: game_state.key_down_is_pressed = true; break;
+        case SDLK_UP:   case SDLK_w: game_state.key_up_is_pressed = true; break;
+        case SDLK_DOWN: case SDLK_s: game_state.key_down_is_pressed = true; break;
       }
       break;
     case SDL_KEYUP:
       switch (event.key.keysym.sym) {
-        case SDLK_UP: game_state.key_up_is_pressed = false; break;
-        case SDLK_DOWN: game_state.key_down_is_pressed = false; break;
+        case SDLK_UP:   case SDLK_w: game_state.key_up_is_pressed = false; break;
+        case SDLK_DOWN: case SDLK_s: game_state.key_down_is_pressed = false; break;
       }
       break;
   }
