@@ -7,6 +7,9 @@ const int WIDTH = 800;
 const int HEIGHT = 600;
 
 
+double infinity = 1.0 / 0.0;
+
+
 struct V2 {
   double x, y;
   V2(double x, double y)
@@ -55,6 +58,38 @@ inline V2 to_pixel_coords(const V2& a) {
 }
 
 
+struct Rect {
+  double n, e, w, s;
+  Rect(double n, double e, double w, double s)
+  : n(n), e(e), w(w), s(s) {}
+};
+
+Rect screen_rect = Rect(1, 1, -1, -1);
+Rect top_of_the_screen        = Rect(infinity, infinity, -infinity, 1);
+Rect right_side_of_the_screen = Rect(infinity, infinity, 1, -infinity);
+Rect left_side_of_the_screen  = Rect(infinity, -1, -infinity, -infinity);
+Rect bottom_of_the_screen     = Rect(-1, infinity, -infinity, -infinity);
+
+inline bool collides(const Rect& a, const Rect& b) {
+  return (a.n >= b.s && a.e >= b.w && a.w <= b.e && a.s <= b.n);
+}
+
+inline bool contains(const Rect& a, const Rect& b) {
+  return (a.n >= b.n && a.e >= b.e && a.w <= b.w && a.s <= b.s);
+}
+
+inline SDL_Rect sdl_rect(const Rect& r) {
+  V2 pixel_pos = to_pixel_coords(V2(r.w, r.n));
+  V2 pixel_dim = to_pixel_magnitude(V2(r.e-r.w, r.n-r.s));
+  
+  SDL_Rect rect;
+  rect.x = pixel_pos.x;
+  rect.y = pixel_pos.y;
+  rect.w = pixel_dim.x;
+  rect.h = pixel_dim.y;
+  return rect;
+}
+
 
 typedef Uint32 Color;
 
@@ -78,20 +113,12 @@ Color current_bg;
 double t_at_start, t_at_last_frame, t, dt;
 
 
-inline SDL_Rect rect(const V2& pos, const V2& dim) {
-  V2 pixel_pos = to_pixel_coords(pos);
-  V2 pixel_dim = to_pixel_magnitude(dim);
-  
-  SDL_Rect rect;
-  rect.x = pixel_pos.x;
-  rect.y = pixel_pos.y;
-  rect.w = pixel_dim.x;
-  rect.h = pixel_dim.y;
-  return rect;
+inline Rect rect_at(const V2& dim, const V2& pos) {
+  return Rect(pos.y + dim.y / 2, pos.x + dim.x / 2, pos.x - dim.x / 2, pos.y - dim.y /2);
 }
 
-inline SDL_Rect square(const V2& pos, double radius=0.01) {
-  return rect(pos - V2(radius, radius), 2*V2(radius, radius));
+inline Rect square_at(double side, const V2& pos) {
+  return rect_at(V2(side, side), pos);
 }
 
 
@@ -101,6 +128,10 @@ inline void clear(Color color=current_bg) {
 
 void draw(const SDL_Rect& r, Color color=current_fg) {
   assert(SDL_FillRect(screen, &r, color) == 0);
+}
+
+void draw(const Rect& r, Color color=current_fg) {
+  draw(sdl_rect(r), color);
 }
 
 
